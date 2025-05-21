@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HALLOOO</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #51b2f3, #9b9b9b);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+            padding: 20px;
+        }
+        
+        .container {
+            position: relative;
+            max-width: 100%;
+            perspective: 1000px;
+        }
+        
+        .envelope {
+            width: 300px;
+            height: 200px;
+            background-color: #ff9eb5;
+            position: relative;
+            margin: 0 auto;
+            border-radius: 5px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            cursor: pointer;
+            transform-style: preserve-3d;
+            transition: transform 0.6s ease;
+            z-index: 2;
+        }
+        
+        .envelope.open {
+            transform: rotateX(180deg);
+            pointer-events: none;
+        }
+        
+        .envelope-front {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #ff9eb5;
+            border-radius: 5px;
+            z-index: 3;
+            overflow: hidden;
+            backface-visibility: hidden;
+        }
+        
+        .envelope-front::before {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-left: 150px solid transparent;
+            border-right: 150px solid transparent;
+            border-top: 100px solid #ff7a9c;
+            bottom: 0;
+            transform: translateY(50%);
+        }
+        
+        .envelope-front::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-left: 150px solid transparent;
+            border-right: 150px solid transparent;
+            border-bottom: 100px solid #ffb8ca;
+            top: 0;
+            z-index: -1;
+        }
+        
+        .envelope-flap {
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-left: 150px solid transparent;
+            border-right: 150px solid transparent;
+            border-top: 100px solid #ff7a9c;
+            top: 0;
+            transform-origin: top;
+            transition: transform 0.4s ease 0.3s;
+            z-index: 4;
+        }
+        
+        .envelope.active .envelope-flap {
+            transform: rotateX(180deg);
+            z-index: 0;
+        }
+        
+        .heart {
+            position: absolute;
+            font-size: 50px;
+            color: white;
+            z-index: 5;
+            text-shadow: 0 0 5px #ff3366;
+            animation: pulse 1.5s infinite;
+        }
+        
+        .couple-stamp {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 60px;
+            height: 70px;
+            border-radius: 5px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transform: rotate(15deg);
+            z-index: 6;
+            border: 2px solid white;
+            background-color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .couple-stamp img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .letter-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+        
+        .letter {
+            background: #fff;
+            padding: 20px;
+            width: 80%;
+            max-height: 80vh;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            position: relative;
+            overflow-y: auto;
+            transform: scale(0.8);
+            transition: transform 0.5s ease;
+        }
+        
+        .letter.show {
+            transform: scale(1);
+        }
+        
+        .letter-container.show {
+            opacity: 1;
+            transform: translateY(0);
+            z-index: 10;
+        }
+        
+        h1 {
+            color: #ff3366;
+            margin-bottom: 15px;
+            font-size: 24px;
+        }
+        
+        p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        
+        .signature {
+            font-style: italic;
+            color: #ff3366;
+            margin-top: 20px;
+            font-size: 18px;
+        }
+        
+        .character {
+            position: absolute;
+            bottom: -50px;
+            right: -40px;
+            width: 100px;
+            height: 100px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="%23ff9eb5"/><circle cx="30" cy="40" r="8" fill="white"/><circle cx="70" cy="40" r="8" fill="white"/><circle cx="30" cy="40" r="4" fill="black"/><circle cx="70" cy="40" r="4" fill="black"/><path d="M30,65 Q50,80 70,65" stroke="white" stroke-width="4" fill="none"/></svg>') no-repeat center center;
+            background-size: contain;
+            animation: bounce 2s infinite;
+            opacity: 0;
+            transition: opacity 0.5s ease 1s;
+        }
+        
+        .letter.show .character {
+            opacity: 1;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+        
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #ff3366;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 15;
+            opacity: 0;
+            transform: scale(0);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        
+        .close-btn.show {
+            opacity: 1;
+            transform: scale(1);
+        }
+        
+        .click-me {
+            position: absolute;
+            bottom: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ff3366;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            animation: fadeInOut 2s infinite;
+            cursor: pointer;
+            z-index: 5;
+        }
+        
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+        }
+        
+        .audio-control {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.7);
+            padding: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 100;
+            display: none;
+        }
+        
+        .audio-control i {
+            font-size: 24px;
+            color: #ff3366;
+        }
+        
+        /* Media Queries */
+        @media (max-width: 768px) {
+            .envelope {
+                width: 250px;
+                height: 180px;
+            }
+            
+            .envelope-front::before,
+            .envelope-front::after,
+            .envelope-flap {
+                border-left: 125px solid transparent;
+                border-right: 125px solid transparent;
+            }
+            
+            .couple-stamp {
+                width: 50px;
+                height: 60px;
+            }
+            
+            .letter {
+                width: 90%;
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 20px;
+            }
+            
+            p {
+                font-size: 14px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .envelope {
+                width: 200px;
+                height: 150px;
+            }
+            
+            .envelope-front::before,
+            .envelope-front::after,
+            .envelope-flap {
+                border-left: 100px solid transparent;
+                border-right: 100px solid transparent;
+                border-top: 80px solid #ff7a9c;
+            }
+            
+            .envelope-front::after {
+                border-bottom: 80px solid #ffb8ca;
+                border-top: none;
+            }
+            
+            .couple-stamp {
+                width: 40px;
+                height: 50px;
+            }
+            
+            .character {
+                width: 80px;
+                height: 80px;
+                right: -20px;
+            }
+            
+            .letter {
+                padding: 10px;
+            }
+            
+            h1 {
+                font-size: 18px;
+                margin-bottom: 10px;
+            }
+            
+            p {
+                font-size: 12px;
+                line-height: 1.4;
+            }
+            
+            .signature {
+                font-size: 16px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="envelope" id="envelope">
+            <div class="envelope-front">
+                <div class="heart">❤️</div>
+                <div class="couple-stamp">
+                    <img src="https://imgur.com/a/YqMOFZn" alt="Kita Berdua" onerror="this.src='https://via.placeholder.com/60x70?text=Foto+Kita'">
+                </div>
+            </div>
+            <div class="envelope-flap"></div>
+        </div>
+        <div class="click-me" id="click-me">dibuka yaa cantiikkkkkk</div>
+        
+        <div class="letter-container" id="letter-container">
+            <div class="letter" id="letter">
+                <h1>Hallo Cantiiikkk</h1>
+                <p>Hari ini kamu bakal super sibuk, I know. Tapi kamu itu warriorku, pejuang kecil yang luar biasa hebat. Semangat kerjanya, ya. You’ve got this, one task at a time.</p>
+                <p>Tapi please, jangan lupa your body needs a little more love sekarang. Kamu belum fit sepenuhnya, jadi jangan bandel. Minum obatnya, jangan ditunda tunda. Kamu penting banget buat banyak hal… especially for me.</p>
+                <p>Aku tahu, aku belum bisa sepenuhnya ngerti kamu belum selalu bisa hadir sebagai pendengar yang paling peka atau pasangan yang paling mengerti tiap sisi kamu. I'm truly sorry for that. Tapi aku berproses, dan aku janji, aku mau terus belajar, growing alongside you.</p>
+                <p>Apa pun jalan hidup yang kamu pilih nanti, no matter how winding or steep it is, I’ll always be here, cheering, staying, loving. You’ll never walk alone, not as long as I exist in your story..</p>
+                <p>Let’s keep showing up for each other, just like we promised. One step, one day, one love at a time 🫶🏻
+
+Have a beautiful, powerful day, my favorite human.</p>
+                <p class="signature">Dengan cinta yang tak terbatas, aku sayang banget sama kamu. I love you more than infinity itself! 🕊️🤍<br>Aku</p>
+                <div class="character"></div>
+            </div>
+        </div>
+        
+        <button class="close-btn" id="close-btn">✕</button>
+    </div>
+    
+    <div class="audio-control" id="audio-control">
+        <i class="fas fa-pause"></i>
+    </div>
+    
+    <audio id="background-music" loop>
+        <source src="https://docs.google.com/uc?export=download&id=1ej9Nqd_LSzUBZfUD78lpuv1ubYLLUXRs" type="audio/mpeg">
+    </audio>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const envelope = document.getElementById('envelope');
+            const envelopeFlap = document.querySelector('.envelope-flap');
+            const letterContainer = document.getElementById('letter-container');
+            const letter = document.getElementById('letter');
+            const closeBtn = document.getElementById('close-btn');
+            const clickMe = document.getElementById('click-me');
+            const audio = document.getElementById('background-music');
+            const audioControl = document.getElementById('audio-control');
+            
+            let isPlaying = false;
+            let hasInteracted = false;
+            
+            // Enable audio after first user interaction
+            function enableAudio() {
+                if (hasInteracted) return;
+                hasInteracted = true;
+                
+                // Show audio control
+                audioControl.style.display = 'flex';
+                
+                // Set up audio control
+                audioControl.addEventListener('click', function() {
+                    if (isPlaying) {
+                        audio.pause();
+                        audioControl.innerHTML = '<i class="fas fa-music"></i>';
+                    } else {
+                        audio.play().catch(e => console.log("Audio play error:", e));
+                        audioControl.innerHTML = '<i class="fas fa-pause"></i>';
+                    }
+                    isPlaying = !isPlaying;
+                });
+            }
+            
+            // Add event listeners for first interaction
+            document.body.addEventListener('click', enableAudio);
+            document.body.addEventListener('touchstart', enableAudio);
+            
+            // Open envelope function
+            function openEnvelope() {
+                if (!hasInteracted) {
+                    enableAudio();
+                }
+                
+                envelope.classList.add('active');
+                
+                setTimeout(function() {
+                    envelope.classList.add('open');
+                    
+                    setTimeout(function() {
+                        letterContainer.classList.add('show');
+                        letter.classList.add('show');
+                        closeBtn.classList.add('show');
+                        clickMe.style.display = 'none';
+                        
+                        // Play music when envelope is opened
+                        if (hasInteracted) {
+                            audio.play().catch(e => console.log("Audio play error:", e));
+                            audioControl.innerHTML = '<i class="fas fa-pause"></i>';
+                            isPlaying = true;
+                        }
+                    }, 600);
+                }, 400);
+            }
+            
+            // Set up envelope click
+            envelope.addEventListener('click', openEnvelope);
+            clickMe.addEventListener('click', openEnvelope);
+            
+            // Close button function
+            closeBtn.addEventListener('click', function() {
+                letterContainer.classList.remove('show');
+                closeBtn.classList.remove('show');
+                
+                setTimeout(function() {
+                    envelope.classList.remove('open');
+                    
+                    setTimeout(function() {
+                        envelope.classList.remove('active');
+                        letter.classList.remove('show');
+                        clickMe.style.display = 'block';
+                        
+                        // Pause music when closing
+                        if (isPlaying) {
+                            audio.pause();
+                            audioControl.innerHTML = '<i class="fas fa-music"></i>';
+                            isPlaying = false;
+                        }
+                    }, 600);
+                }, 400);
+            });
+        });
+    </script>
+</body>
+</html>
